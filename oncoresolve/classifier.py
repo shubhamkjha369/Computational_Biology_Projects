@@ -7,7 +7,7 @@ from pathlib import Path
 class OncoClassifier:
     """
     OncoResolve diagnostic classifier.
-    Exposes APIs to load the pre-trained models (RBF-SVM or Logistic Regression)
+    Exposes APIs to load the pre-trained models (RBF-SVM or Linear SVM)
     or train a new model for PAM50 breast cancer subtyping.
     """
     def __init__(self, model_type="svm", model_path=None, label_encoder_path=None):
@@ -23,9 +23,9 @@ class OncoClassifier:
             
             if model_path is None:
                 if self.model_type == "svm":
-                    model_path = artifacts_dir / "final_probability_svm.pkl"
+                    model_path = artifacts_dir / "kernel_svm_model.pkl"
                 else:
-                    model_path = artifacts_dir / "final_logistic_regression_model.pkl"
+                    model_path = artifacts_dir / "linear_svm_model.pkl"
                     
             if label_encoder_path is None:
                 label_encoder_path = artifacts_dir / "label_encoder_cohort.pkl"

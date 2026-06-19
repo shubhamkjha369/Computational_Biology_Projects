@@ -1,7 +1,7 @@
 """
 automl_page.py - Premium Clinical Subtype Predictor & Benchmarking Interface
 =============================================================================
-Deploys locked v3.3 pre-trained models (Logistic Regression + Support Vector Machine)
+Deploys locked v3.3 pre-trained models (Linear SVM + Support Vector Machine)
 on user-uploaded transcriptomics datasets.
 """
 import time
@@ -38,7 +38,7 @@ SUBTYPE_COLORS = {
     "normal": "#ec4899",
 }
 
-PRETRAINED_LR_KEY = "lr_model"
+PRETRAINED_LR_KEY = "linear_svm_model"
 PRETRAINED_SVM_KEY = "svm_model"
 
 # Ground-truth mapping options for benchmarking
@@ -73,7 +73,7 @@ def _prediction_color_map(labels):
 # =============================================================================
 def _load_and_align_features(df, top_deg_genes, entrez_to_hugo):
     """
-    Transposes, filters, and aligns the uploaded dataframe to match the 178
+    Transposes, filters, and aligns the uploaded dataframe to match the 93
     consensus biomarker signature, applying log2 scaling if linear expected counts are detected.
     """
     raw_df = df.copy()
@@ -221,8 +221,8 @@ div[data-testid="stFileUploader"] {
 
     # 1. LOAD ARTIFACTS
     try:
-        lr_pipeline = joblib.load(ARTIFACT_DIR / "logistic_regression_model.pkl")
-        svm_pipeline = joblib.load(ARTIFACT_DIR / "SVM_probability.pkl")
+        linear_svm_pipeline = joblib.load(ARTIFACT_DIR / "linear_svm_model.pkl")
+        svm_pipeline = joblib.load(ARTIFACT_DIR / "kernel_svm_model.pkl")
         top_deg_genes = joblib.load(ARTIFACT_DIR / "top_deg_genes.pkl")
         entrez_to_hugo = joblib.load(ARTIFACT_DIR / "tcga_entrez_to_hugo.pkl")
         label_encoder = joblib.load(ARTIFACT_DIR / "label_encoder_cohort.pkl")
@@ -239,7 +239,7 @@ div[data-testid="stFileUploader"] {
             model_choice = st.selectbox(
                 "Select Pre-trained Model",
                 [PRETRAINED_LR_KEY, PRETRAINED_SVM_KEY],
-                format_func=lambda x: "Logistic Regression (Linear Classifier — Holdout ACC: 85.79%)" if x == PRETRAINED_LR_KEY else "Support Vector Machine (RBF Classifier — Holdout ACC: 87.31%)"
+                format_func=lambda x: "Linear SVM (Linear Classifier — Holdout ACC: 86.29%)" if x == PRETRAINED_LR_KEY else "Kernel SVM (RBF Classifier — Holdout ACC: 87.31%)"
             )
         with col_scaling:
             scaling_choice = st.selectbox(
@@ -298,17 +298,17 @@ div[data-testid="stFileUploader"] {
                 if ground_truth_col and ground_truth_col in raw_df.columns:
                     y_true_raw = raw_df[ground_truth_col].copy()
 
-                # Align features to 178 signature
+                # Align features to 93 signature
                 X_aligned, patient_ids, mapped_features, missing_features = _load_and_align_features(
                     raw_df, top_deg_genes, entrez_to_hugo
                 )
 
                 if len(mapped_features) == 0:
-                    st.error("Error: The uploaded dataset does not share any mapped HUGO symbols with the 178 consensus biomarker signature. Check your column labels.")
+                    st.error("Error: The uploaded dataset does not share any mapped HUGO symbols with the 93 consensus biomarker signature. Check your column labels.")
                     return
 
                 # Choose model pipeline
-                pipeline = lr_pipeline if model_choice == PRETRAINED_LR_KEY else svm_pipeline
+                pipeline = linear_svm_pipeline if model_choice == PRETRAINED_LR_KEY else svm_pipeline
                 scaler_fitted = pipeline.named_steps["scaler"]
                 clf = pipeline.named_steps["clf"]
 
@@ -347,7 +347,7 @@ div[data-testid="stFileUploader"] {
                 # Render metrics
                 st.markdown("<div class='custom-hr'></div>", unsafe_allow_html=True)
                 st.markdown(
-                    f'<div class="success-box"><b>Prediction Complete!</b> Successfully aligned <b>{len(mapped_features)}/178</b> signature genes.</div>',
+                    f'<div class="success-box"><b>Prediction Complete!</b> Successfully aligned <b>{len(mapped_features)}/93</b> signature genes.</div>',
                     unsafe_allow_html=True
                 )
 

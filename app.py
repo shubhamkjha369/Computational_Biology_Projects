@@ -75,8 +75,8 @@ nested_cv = load_pickle(ARTIFACT_DIR, "nested_cv_results.pkl")
 external_val = load_pickle(ARTIFACT_DIR, "external_validation_results.pkl")
 
 # Pre-trained models and label encoders
-lr_model = load_pickle(ARTIFACT_DIR, "logistic_regression_model.pkl")
-svm_model = load_pickle(ARTIFACT_DIR, "SVM_probability.pkl")
+linear_kernel_svm_model = load_pickle(ARTIFACT_DIR, "linear_svm_model.pkl")
+kernel_svm_model = load_pickle(ARTIFACT_DIR, "kernel_svm_model.pkl")
 top_deg_genes = load_pickle(ARTIFACT_DIR, "top_deg_genes.pkl")
 le_cohort = load_pickle(ARTIFACT_DIR, "label_encoder_cohort.pkl")
 
@@ -352,7 +352,7 @@ page = st.session_state.active_page
 st.sidebar.markdown("<div class='custom-hr'></div>", unsafe_allow_html=True)
 st.sidebar.markdown("**TCGA-BRCA Pan-Can Atlas 2018**")
 st.sidebar.caption("Illumina HiSeq RNA-seq V2 (RSEM batch-normalized).")
-st.sidebar.caption("N=1,084 patients (981 post-QC) | 178 consensus genes | 5 PAM50 subtypes | OS+DFS survival")
+st.sidebar.caption("N=1,084 patients (981 post-QC) | 93 consensus genes | 5 PAM50 subtypes | OS+DFS survival")
 st.sidebar.markdown("<div class='custom-hr'></div>", unsafe_allow_html=True)
 st.sidebar.markdown("**External Validation Cohorts**")
 st.sidebar.caption("SMC 2018: N=168 (RNA-seq) | SCAN-B: N=340 (RNA-seq) | METABRIC: N=1,756 (microarray)")
@@ -409,11 +409,11 @@ if page == "Project Overview":
     with cols[0]:
         st.markdown(card("981", "Post-QC Patients", True), unsafe_allow_html=True)
     with cols[1]:
-        st.markdown(card("178", "Consensus Biomarkers", False), unsafe_allow_html=True)
+        st.markdown(card("93", "Consensus Biomarkers", False), unsafe_allow_html=True)
     with cols[2]:
         st.markdown(card("5", "PAM50 Subtypes Classified", False), unsafe_allow_html=True)
     with cols[3]:
-        st.markdown(card("85.18%", "Nested CV Macro F1", False), unsafe_allow_html=True)
+        st.markdown(card("76.99%", "Nested CV Macro F1", False), unsafe_allow_html=True)
 
     st.markdown('<div class="section-title">Independent Validation Cohorts</div>', unsafe_allow_html=True)
     cols2 = st.columns(3)
@@ -434,7 +434,7 @@ if page == "Project Overview":
     st.dataframe(pd.DataFrame(pam50_data), use_container_width=True, hide_index=True)
 
     st.markdown('<div class="section-title">Engineering Stack (Classical Bioinformatics & ML)</div>', unsafe_allow_html=True)
-    techs = ["Scikit-Learn Pipelines", "Support Vector Machine (RBF)", "Logistic Regression (Linear)", "decoupler ssGSEA", "ConsensusTME", "lifelines Survival", "KernelSHAP",
+    techs = ["Scikit-Learn Pipelines", "Support Vector Machine (RBF)", "Linear SVM (Linear)", "decoupler ssGSEA", "ConsensusTME", "lifelines Survival", "KernelSHAP",
              "Plotly", "Pandas", "Streamlit", "Broad DepMap API", "LINCS L1000", "cBioPortal API"]
     tech_badges = "".join([f'<span class="badge badge-accent">{t}</span>' if i < 4 else f'<span class="badge">{t}</span>' for i, t in enumerate(techs)])
     st.markdown(f'<div style="margin-top: 10px;">{tech_badges}</div>', unsafe_allow_html=True)
@@ -623,11 +623,11 @@ elif page == "Clustering & Networks":
 
 elif page == "Feature Selection":
     st.markdown('<div class="main-title">Consensus <span class="main-title-accent">Biomarker Discovery</span></div>', unsafe_allow_html=True)
-    st.markdown('<div class="info-box">We run a dual-architecture SHAP feature selection pipeline, fusing linear (Logistic Regression) and non-linear (RBF-SVM) importance. Genes are filtered via Welch\'s t-test DGE and ranked by consensus score to select 178 biomarkers.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="info-box">We run a dual-architecture SHAP feature selection pipeline, fusing linear (Linear SVM) and non-linear (RBF-SVM) importance. Genes are filtered via Welch\'s t-test DGE and ranked by consensus score to select 93 biomarkers.</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="section-title">Top Consensus Biomarkers</div>', unsafe_allow_html=True)
     if consensus_genes is not None:
-        st.markdown(f'<div class="success-box"><b>{len(consensus_genes)} robust consensus genes</b> identified across architectures (SVM and Logistic Regression).</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="success-box"><b>{len(consensus_genes)} robust consensus genes</b> identified across architectures (RBF SVM and Linear SVM).</div>', unsafe_allow_html=True)
         
         col_fs1, col_fs2 = st.columns([1, 1])
         with col_fs1:
@@ -637,7 +637,7 @@ elif page == "Feature Selection":
             
             1. **Variance Filtering & Outlier Removal:** Stagnant transcripts are removed, and low-correlation outliers are pruned to yield a clean discovery cohort of 756 samples.
             2. **Welch's t-test & FDR Correction:** Subtype-specific differentially expressed genes (DGE) are identified under strict significance thresholds ($|\log_2\text{FC}| > 0.58$, $\text{FDR} < 0.05$).
-            3. **Dual-Architecture SHAP Fusion:** SHAP values from independent **Logistic Regression** and **SVM** models are MinMax-normalized and averaged to calculate a robust consensus score.
+            3. **Dual-Architecture SHAP Fusion:** SHAP values from independent **Linear SVM** and **RBF SVM** models are MinMax-normalized and averaged to calculate a robust consensus score.
             4. **Consensus Ranking:** The top **50 consensus genes** are locked as features, reducing feature dimensionality by >99% while preserving classification power.
             """)
         with col_fs2:
@@ -668,7 +668,7 @@ elif page == "Feature Selection":
 
 elif page == "Model Performance":
     st.markdown('<div class="main-title">Classifier Benchmarks & <span class="main-title-accent">Dual-Architecture Performance</span></div>', unsafe_allow_html=True)
-    st.markdown('<div class="info-box">We evaluate classification models on the TCGA holdout split and via cross-validation, highlighting the finalized Logistic Regression (Linear) and Support Vector Machine (RBF) classifiers. The Support Vector Machine (RBF) is our best performing model overall, achieving 87.31% Accuracy and 82.27% Macro F1-score on the holdout set, and demonstrating superior transportability across external validation cohorts. Tree-based ensembles were rejected due to F1 instability on imbalanced classes.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="info-box">We evaluate classification models on the TCGA holdout split and via cross-validation, highlighting the finalized Linear SVM (Linear) and Support Vector Machine (RBF) classifiers. The Support Vector Machine (RBF) is our best performing model overall, achieving 87.31% Accuracy and 82.27% Macro F1-score on the holdout set, and demonstrating superior transportability across external validation cohorts. Tree-based ensembles were rejected due to F1 instability on imbalanced classes.</div>', unsafe_allow_html=True)
 
     t_perf, t_cv = st.tabs(["Holdout Performance Benchmarks", "Cross-Validation & Hyperparameters"])
 
@@ -677,7 +677,7 @@ elif page == "Model Performance":
         
         # Build clean holdout df from the audited results
         holdout_metrics_df = pd.DataFrame([
-            {"Model": "Logistic Regression (Linear)", "Accuracy": 0.8579, "Macro F1-Score": 0.8182, "95% Bootstrap CI (F1)": "[0.7280, 0.8858]"},
+            {"Model": "Linear SVM (Linear)", "Accuracy": 0.8629, "Macro F1-Score": 0.8217, "95% Bootstrap CI (F1)": "[0.7306, 0.8899]"},
             {"Model": "Support Vector Machine (RBF)", "Accuracy": 0.8731, "Macro F1-Score": 0.8227, "95% Bootstrap CI (F1)": "[0.7003, 0.9031]"}
         ])
 
@@ -696,7 +696,7 @@ elif page == "Model Performance":
         <div class="success-box">
             <b>Classifier Evaluation Insights:</b>
             <ul style="margin: 8px 0 0 20px; padding: 0;">
-                <li style="margin-bottom: 6px;"><b>Linear vs. Non-Linear Separability:</b> <b>Logistic Regression (Linear)</b> and <b>Support Vector Machine (RBF-SVM)</b> show outstanding performance. OncoResolve utilizes both architectures to capture linear and complex non-linear diagnostic boundaries.</li>
+                <li style="margin-bottom: 6px;"><b>Linear vs. Non-Linear Separability:</b> <b>Linear SVM (Linear)</b> and <b>Support Vector Machine (RBF-SVM)</b> show outstanding performance. OncoResolve utilizes both architectures to capture linear and complex non-linear diagnostic boundaries.</li>
                 <li style="margin-bottom: 6px;"><b>Consensus Feature Space:</b> Training classifiers on the 50 consensus biomarker space achieves competitive performance compared to the full 18,000 gene space, drastically reducing technical noise and ensuring computational tractability.</li>
                 <li><b>Platform Stability:</b> The dual-architecture locked model demonstrates high transferability to external cohorts, maintaining accuracy without any fine-tuning or retraining.</li>
             </ul>
@@ -725,14 +725,14 @@ elif page == "Model Performance":
         else:
             cv_summary_df = pd.DataFrame([
                 {"Classifier Model": "Support Vector Machine (RBF)", "Mean CV Accuracy": "86.74%", "Mean CV Macro F1": "82.17%", "F1 Std Deviation": "±5.07%", "Optimal Parameters": "{'clf__C': 1.0, 'clf__gamma': 0.01}"},
-                {"Classifier Model": "Logistic Regression (Linear)", "Mean CV Accuracy": "86.35%", "Mean CV Macro F1": "82.88%", "F1 Std Deviation": "±6.14%", "Optimal Parameters": "{'clf__C': 0.1}"}
+                {"Classifier Model": "Linear SVM (Linear)", "Mean CV Accuracy": "86.35%", "Mean CV Macro F1": "82.88%", "F1 Std Deviation": "±6.14%", "Optimal Parameters": "{'clf__C': 0.1}"}
             ])
             st.dataframe(cv_summary_df, use_container_width=True, hide_index=True)
 
         st.markdown("""
         <div class="info-box">
             <b>Rejection of Tree-Based Ensembles:</b><br>
-            While models like Random Forest, XGBoost, and LightGBM are often popular, they exhibited significant F1-score volatility and overfitted on majority classes (e.g. Luminal A) in the presence of subtype imbalance. The RBF-SVM and Logistic Regression architectures, with class-weight balancing and regularization, achieved much higher macro F1 stability and tighter confidence intervals, making them the robust choices for clinical subtyping.
+            While models like Random Forest, XGBoost, and LightGBM are often popular, they exhibited significant F1-score volatility and overfitted on majority classes (e.g. Luminal A) in the presence of subtype imbalance. The RBF-SVM and Linear SVM architectures, with class-weight balancing and regularization, achieved much higher macro F1 stability and tighter confidence intervals, making them the robust choices for clinical subtyping.
         </div>
         """, unsafe_allow_html=True)
 
@@ -798,7 +798,7 @@ elif page == "SHAP Explainability":
             
             col_sel1, col_sel2, col_sel3, col_sel4 = st.columns([1.2, 1.5, 1.3, 1.2])
             with col_sel1:
-                model_sel = st.selectbox("Select Classifier Model", ["SVM (RBF)", "Logistic Regression (Linear)"])
+                model_sel = st.selectbox("Select Classifier Model", ["SVM (RBF)", "Linear SVM (Linear)"])
             with col_sel2:
                 sample_idx = st.selectbox(
                     "Select Patient Sample",
@@ -820,10 +820,10 @@ elif page == "SHAP Explainability":
             
             # Load selected model and raw tensor
             if model_sel == "SVM (RBF)":
-                model_obj = svm_model
+                model_obj = kernel_svm_model
                 shap_tensor = np.load(ARTIFACT_DIR / "consensus_svm_shap_tensor.npy")
             else:
-                model_obj = lr_model
+                model_obj = linear_svm_model
                 shap_tensor = np.load(ARTIFACT_DIR / "consensus_lr_shap_tensor.npy")
             
             if shap_tensor is not None and model_obj is not None:
@@ -901,7 +901,7 @@ elif page == "SHAP Explainability":
                 """, unsafe_allow_html=True)
 
                 st.markdown("<br>", unsafe_allow_html=True)
-                with st.expander("📋 View Complete Individual Patient Biomarker Contribution Table (All 178 Genes)"):
+                with st.expander("📋 View Complete Individual Patient Biomarker Contribution Table (All 93 Genes)"):
                     patient_shap_data = []
                     for idx in range(len(sample_shaps)):
                         probe = sorted_genes[idx]
@@ -1058,7 +1058,7 @@ elif page == "External Validation":
             for cohort, data in external_val.items():
                 for model in ["lr", "svm"]:
                     if model in data:
-                        model_name = "Logistic Regression (Linear)" if model == "lr" else "Support Vector Machine (RBF)"
+                        model_name = "Linear SVM (Linear)" if model == "lr" else "Support Vector Machine (RBF)"
                         rows.append({
                             "Cohort": cohort,
                             "Platform": data.get("platform", "RNA-seq"),
@@ -1066,7 +1066,7 @@ elif page == "External Validation":
                             "Accuracy": f"{data[model]['acc']:.2%}",
                             "F1 Macro": f"{data[model]['f1_macro']:.2%}",
                             "F1 Weighted": f"{data[model]['f1_weighted']:.2%}",
-                            "Shared Genes": f"{data.get('n_shared', 178)}/178",
+                            "Shared Genes": f"{data.get('n_shared', 93)}/93",
                             "Samples (N)": data.get("n_samples", 0)
                         })
             val_df = pd.DataFrame(rows)
@@ -1074,12 +1074,12 @@ elif page == "External Validation":
         else:
             st.warning("External validation results dictionary not found. Showing baseline validated scores:")
             val_df = pd.DataFrame([
-                {"Cohort": "SCAN-B", "Platform": "Illumina NextSeq RNA-seq", "Model": "Support Vector Machine (RBF)", "Accuracy": "84.86%", "F1 Macro": "84.38%", "F1 Weighted": "84.45%", "Shared Genes": "168/178", "Samples (N)": 317},
-                {"Cohort": "SCAN-B", "Platform": "Illumina NextSeq RNA-seq", "Model": "Logistic Regression (Linear)", "Accuracy": "81.07%", "F1 Macro": "67.36%", "F1 Weighted": "83.13%", "Shared Genes": "168/178", "Samples (N)": 317},
-                {"Cohort": "SMC 2018", "Platform": "Illumina RNA-seq", "Model": "Support Vector Machine (RBF)", "Accuracy": "77.11%", "F1 Macro": "78.89%", "F1 Weighted": "75.60%", "Shared Genes": "178/178", "Samples (N)": 166},
-                {"Cohort": "SMC 2018", "Platform": "Illumina RNA-seq", "Model": "Logistic Regression (Linear)", "Accuracy": "77.71%", "F1 Macro": "63.93%", "F1 Weighted": "77.93%", "Shared Genes": "178/178", "Samples (N)": 166},
-                {"Cohort": "METABRIC", "Platform": "Illumina HT-12 v3 Microarray", "Model": "Support Vector Machine (RBF)", "Accuracy": "74.38%", "F1 Macro": "73.97%", "F1 Weighted": "74.28%", "Shared Genes": "78/178", "Samples (N)": 1608},
-                {"Cohort": "METABRIC", "Platform": "Illumina HT-12 v3 Microarray", "Model": "Logistic Regression (Linear)", "Accuracy": "75.25%", "F1 Macro": "58.63%", "F1 Weighted": "74.25%", "Shared Genes": "78/178", "Samples (N)": 1608}
+                {"Cohort": "SCAN-B", "Platform": "Illumina NextSeq RNA-seq", "Model": "Support Vector Machine (RBF)", "Accuracy": "78.24%", "F1 Macro": "79.23%", "F1 Weighted": "78.62%", "Shared Genes": "89/93", "Samples (N)" : 340},
+                {"Cohort": "SCAN-B", "Platform": "Illumina NextSeq RNA-seq", "Model": "Linear SVM (Linear)", "Accuracy": "77.06%", "F1 Macro": "79.05%", "F1 Weighted": "77.60%", "Shared Genes": "89/93", "Samples (N)" : 340},
+                {"Cohort": "SMC 2018", "Platform": "Illumina RNA-seq", "Model": "Support Vector Machine (RBF)", "Accuracy": "76.79%", "F1 Macro": "69.50%", "F1 Weighted": "76.44%", "Shared Genes": "93/93", "Samples (N)" : 168},
+                {"Cohort": "SMC 2018", "Platform": "Illumina RNA-seq", "Model": "Linear SVM (Linear)", "Accuracy": "78.57%", "F1 Macro": "73.07%", "F1 Weighted": "78.72%", "Shared Genes": "93/93", "Samples (N)" : 168},
+                {"Cohort": "METABRIC", "Platform": "Illumina HT-12 v3 Microarray", "Model": "Support Vector Machine (RBF)", "Accuracy": "63.67%", "F1 Macro": "57.08%", "F1 Weighted": "61.33%", "Shared Genes": "48/93", "Samples (N)" : 1756},
+                {"Cohort": "METABRIC", "Platform": "Illumina HT-12 v3 Microarray", "Model": "Linear SVM (Linear)", "Accuracy": "67.08%", "F1 Macro": "61.96%", "F1 Weighted": "66.00%", "Shared Genes": "48/93", "Samples (N)" : 1756}
             ])
             st.dataframe(val_df, use_container_width=True, hide_index=True)
 

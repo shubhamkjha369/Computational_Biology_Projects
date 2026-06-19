@@ -29,7 +29,7 @@
 - [Project Aim](#project-aim)
 - [Pipeline Workflow & Architecture](#pipeline-workflow)
 - [1. Patient Cohorts: Validating Across the Globe](#patient-cohorts)
-- [2. Biomarker Discovery: Sifting for the Core 178 Genes](#biomarker-discovery)
+- [2. Biomarker Discovery: Sifting for the Core 93 Genes](#biomarker-discovery)
 - [3. Subtype Predictors: High-Performance Diagnostic Classification](#subtype-predictors)
 - [4. Explainable AI: Understanding the Decisions (SHAP)](#explainable-ai)
 - [5. N-of-1 Personal Profiling: The Composite Uniqueness Score (CUS)](#personal-profiling)
@@ -47,7 +47,7 @@
 
 Breast cancer is a highly heterogeneous disease characterized by transcriptionally distinct molecular subtypes (PAM50 classification) that dictate therapeutic intervention and clinical prognosis. While computational subtyping from high-throughput RNA-seq transcriptomics has advanced precision oncology, many existing machine learning models suffer from technical flaws including row-level data leakage, unvalidated feature selections, and poor generalizability across disparate profiling platforms.
 
-Using a primary cohort of 1,084 patient transcriptomes (981 post-QC) from the TCGA-BRCA Pan-Cancer Atlas across all five PAM50 subtypes including Normal-like, we implement an anti-leakage cross-validation protocol where Z-score standardization (`StandardScaler`) and a consensus feature selection ensemble utilizing majority voting (ANOVA, LASSO, Random Forest Gini) are fit strictly within each training partition. Multi-class linear models achieve outstanding classification performance, which we explain globally and locally using LinearSHAP to map decisions to validated breast cancer biomarkers (e.g., *ESR1*, *ERBB2*, *MKI67*). Furthermore, we introduce the Composite Uniqueness Score (CUS)—an advanced N-of-1 mathematical framework combining topological network distance and autoencoder reconstruction error to measure transcriptomic uniqueness at the individual level. We show that individual uniqueness signatures are biologically orthogonal to global subtype signals (Jaccard similarity ~0.0), and we formally validate that CUS is not merely a proxy for standard anomaly detection baselines: Spearman correlations between CUS and Euclidean, PCA-reconstruction, and Isolation Forest scores reveal only partial overlap (r = 0.67, 0.65, and 0.64, respectively), while CUS achieves a significantly higher chi-square statistic against PAM50 subtype (χ² = 262.03, p = 1.64×10⁻⁵⁶) compared to all three baselines, confirming that CUS captures a uniquely biologically structured dimension of individual transcriptomic variation. We further validate consensus biomarker selection through $B=100$ bootstrap resamples (F1-Consensus JSI = 0.2035) and $P=500$ permutation tests, and demonstrate that predicted class probabilities are accurately calibrated across all external cohorts (max ECE < 13.64%). Finally, we demonstrate the robustness and clinical transportability of the locked OncoResolve discovery pipeline by successfully validating it across three independent external cohorts: **SMC 2018** (South Korea, N=168; Logistic Regression ROC-AUC=0.9771), **SCAN-B** (Sweden/GSE96058, N=340; Support Vector Machine ROC-AUC=0.9755), and **METABRIC** (Illumina microarray, N=1,756; Support Vector Machine ROC-AUC=0.8939), demonstrating high diagnostic transferability across platforms and cohorts despite extreme platform-specific profiling shifts. A Consensus Ridge Cox Risk Score (CRS) built on the 178 consensus genes achieves C-indices of **0.756** (TCGA), **0.6493** (SCAN-B), and **0.5834** (METABRIC), with significant log-rank survival separation (OS p = 0.024).
+Using a primary cohort of 1,084 patient transcriptomes (981 post-QC) from the TCGA-BRCA Pan-Cancer Atlas across all five PAM50 subtypes including Normal-like, we implement an anti-leakage cross-validation protocol where Z-score standardization (`StandardScaler`) and a consensus feature selection ensemble utilizing majority voting (ANOVA, LASSO, Random Forest Gini) are fit strictly within each training partition. Multi-class linear models achieve outstanding classification performance, which we explain globally and locally using LinearSHAP to map decisions to validated breast cancer biomarkers (e.g., *ESR1*, *ERBB2*, *MKI67*). Furthermore, we introduce the Composite Uniqueness Score (CUS)—an advanced N-of-1 mathematical framework combining topological network distance and autoencoder reconstruction error to measure transcriptomic uniqueness at the individual level. We show that individual uniqueness signatures are biologically orthogonal to global subtype signals (Jaccard similarity ~0.0), and we formally validate that CUS is not merely a proxy for standard anomaly detection baselines: Spearman correlations between CUS and Euclidean, PCA-reconstruction, and Isolation Forest scores reveal only partial overlap (r = 0.65, 0.61, and 0.62, respectively), while CUS achieves a significantly higher chi-square statistic against PAM50 subtype (?? = 273.77, p = 4.90?10???).
 
 ---
 
@@ -101,7 +101,7 @@ Using a primary cohort of 1,084 patient transcriptomes (981 post-QC) from the TC
 > ```
 > notebooks/OncoResolve_Model_Training_Validation.ipynb
 > ```
-> **What it does:** Performs nested cross-validation and hyperparameter search across 10 classifiers (4 linear, 6 non-linear) on the 178 consensus genes, and evaluates performance on all external cohorts. This notebook focuses strictly on performance results, generalizability gaps, and validation statistics.
+> **What it does:** Performs nested cross-validation and hyperparameter search across 10 classifiers (4 linear, 6 non-linear) on the 93 consensus genes, and evaluates performance on all external cohorts. This notebook focuses strictly on performance results, generalizability gaps, and validation statistics.
 >
 > ### Step 6 — Run the Main Analysis Notebook (Research & Testing Focus)
 > Now run the remaining sections (Sections 8 to 17) of the primary notebook:
@@ -181,7 +181,7 @@ Breast cancer is a highly heterogeneous disease. The **PAM50 molecular classific
 
 1. **Anti-leakage dual-architecture classification** — Deploy a finalized **Logistic Regression (Linear) + Support Vector Machine (RBF)** dual-model pipeline trained on **981 TCGA-BRCA** patients (including Normal-like subtype), where `StandardScaler` and ensemble feature selection (ANOVA, LASSO, Random Forest) are fit strictly *inside* each cross-validation training fold — eliminating the feature-selection leakage that affects >90% of published transcriptomics ML papers. Holdout performance (N=197): Logistic Regression ROC-AUC=**0.9914**, MCC=**0.8738**.
 
-2. **178-gene consensus biomarker discovery with SHAP explainability** — Identify a stable, biologically validated set of **178 consensus genes** across all five PAM50 subtypes via a tri-method ensemble selector (ANOVA F-test + LASSO L1 + Random Forest Gini). Explain predictions using both **LinearSHAP** (Logistic Regression) and **KernelSHAP** (RBF-SVM), and fuse attributions into a **Logistic Regression LinearSHAP** that resolves inter-model scale differences. Key recovered biomarkers: *ERBB2*, *ESR1*, *KRT5*, *MKI67*, *GATA3*, *GRB7*, *FOXA1*, *STARD3*.
+2. **93-gene consensus biomarker discovery with SHAP explainability** — Identify a stable, biologically validated set of **93 consensus genes** across all five PAM50 subtypes via a tri-method ensemble selector (ANOVA F-test + LASSO L1 + Random Forest Gini). Explain predictions using both **LinearSHAP** (Logistic Regression) and **KernelSHAP** (RBF-SVM), and fuse attributions into a **Logistic Regression LinearSHAP** that resolves inter-model scale differences. Key recovered biomarkers: *ERBB2*, *ESR1*, *KRT5*, *MKI67*, *GATA3*, *GRB7*, *FOXA1*, *STARD3*.
 
 3. **N-of-1 Composite Uniqueness Score (CUS)** — Quantify individual patient transcriptomic uniqueness using an original mathematical framework combining Patient Similarity Network (PSN) distances with PyTorch Autoencoder reconstruction error. Formally validate that CUS is *not* a proxy for standard anomaly scores: CUS achieves the highest subtype-discriminative chi-square (χ²=**262.03**, p=1.64×10⁻⁵⁶) and Cox C-index (**0.7635**) vs. Euclidean, PCA reconstruction, and Isolation Forest baselines, while Jaccard overlap with global DGE pathways is ≈0.0 (confirming private biological signal).
 
@@ -192,9 +192,9 @@ Breast cancer is a highly heterogeneous disease. The **PAM50 molecular classific
 
    Cross-platform transfer requires per-cohort independent Z-score harmonization and strict alphabetical feature alignment — bypassing these steps collapses SVM accuracy to 11–21%.
 
-5. **Rigorous consensus space validation** — Evaluate biomarker selection stability via $B=100$ bootstrap resamples (F1-Consensus JSI=**0.2035**) and $P=500$ empirical permutation tests. Confirm prediction probability calibration across all four cohorts (max ECE <**13.64%**; Brier Score <0.10) to meet peer-reviewed oncology journal standards.
+5. **Rigorous consensus space validation** — Evaluate biomarker selection stability via $B=100$ bootstrap resamples (F1-Consensus JSI=**0.3342**) and $P=500$ empirical permutation tests. Confirm prediction probability calibration across all four cohorts (max ECE <**13.64%**; Brier Score <0.10) to meet peer-reviewed oncology journal standards.
 
-6. **Transferable prognostic Consensus Ridge Cox Risk Score (CRS)** — Build an L2-regularized Ridge Cox model on the full consensus signature, yielding a continuous CRS validated across independent cohorts: TCGA C-index=**0.7560**, SCAN-B C-index=**0.6493**, METABRIC C-index=**0.5834** — extending OncoResolve from a diagnostic classifier to a multi-cohort prognostic tool.
+6. **Transferable prognostic Consensus Ridge Cox Risk Score (CRS)** — Build an L2-regularized Ridge Cox model on the full consensus signature, yielding a continuous CRS validated across independent cohorts: TCGA C-index=**0.7266**, SCAN-B C-index=**0.6401**, METABRIC C-index=**0.5551** — extending OncoResolve from a diagnostic classifier to a multi-cohort prognostic tool.
 
 ---
 
@@ -209,7 +209,7 @@ To ensure our findings are robust, generalizable, and free from computational bi
 ### End-to-End Architectural Layers:
 1. **Input & Harmonization Layer:** Loads raw datasets (TCGA-BRCA, SMC 2018, SCAN-B, METABRIC) and aligns them through independent cohort-specific Z-score scaling to correct for cross-platform batch effects.
 2. **High-Hygiene Preprocessing Layer:** Implements a strict **Anti-Leakage Protocol (ALP)** where median imputation, variance thresholding, and standard scaling are calculated strictly within-fold during training, preventing downstream data leaks.
-3. **Consensus Feature Selection Ensemble Layer:** Discovers biomarkers by running ANOVA F-test, LASSO L1, and Random Forest feature selectors in parallel, selecting genes nominated by $\ge$ 2 methods to lock a robust **178-gene signature**.
+3. **Consensus Feature Selection Ensemble Layer:** Discovers biomarkers by running ANOVA F-test, LASSO L1, and Random Forest feature selectors in parallel, selecting genes nominated by $\ge$ 2 methods to lock a robust **93-gene signature**.
 4. **Model Training & Hyperparameter Tuning Layer:** Employs a 5-Fold Stratified Nested Cross-Validation (outer loop) with 3-Fold GridSearchCV (inner loop) to train and optimize Logistic Regression and Support Vector Machine classifiers.
 5. **Explainable AI (XAI) & Biomarker Mapping Layer:** Uses LinearSHAP and TreeSHAP to map local and global classification decisions back to clinical biomarkers (e.g., *ESR1*, *ERBB2*, *MKI67*).
 6. **Precision Oncology & Outcomes Layer:** Computes an N-of-1 **Composite Uniqueness Score (CUS)** (Autoencoder reconstruction residual + topological network distance) for personalized profiling, and maps prognosis via a **Consensus Ridge Cox Risk Score (CRS)**.
@@ -242,21 +242,21 @@ Because the measurement scale of microarrays is completely different from RNA se
 ---
 
 <a id="biomarker-discovery"></a>
-## 2. Biomarker Discovery: Sifting for the Core 178 Genes
+## 2. Biomarker Discovery: Sifting for the Core 93 Genes
 
 Out of the 20,000 genes in the human genome, only a fraction drive breast cancer subtyping. We built a **tri-method consensus ensemble selector** that votes on the most important genes across three mathematical views:
 - **ANOVA (Linear separation)**: Looks for genes that show different average levels between subtypes.
 - **LASSO L1 (Feature shrinkage)**: Selects a sparse, minimal set of genes with strong predictive coefficients.
 - **Random Forest Gini (Non-linear trees)**: Selects genes based on decision-tree impurity splits.
 
-A gene was included in the final signature only if it was nominated by **at least two of the three methods**. This yielded a stable signature of **178 consensus genes**.
+A gene was included in the final signature only if it was nominated by **at least two of the three methods**. This yielded a stable signature of **93 consensus genes**.
 
 ### Biomarker Selection Stability & Frequency
 
-To ensure the selected 178 consensus genes represent reproducible features rather than noise, we evaluated selection stability using bootstrap resampling and permutation testing:
+To ensure the selected 93 consensus genes represent reproducible features rather than noise, we evaluated selection stability using bootstrap resampling and permutation testing:
 
 - **Bootstrap Selection Frequency**: The selection frequency of individual consensus genes across 100 bootstrap iterations demonstrates that a stable core set of biomarkers is consistently identified.
-- **Label Permutation Test**: Shuffling the subtype labels across 500 permutations builds an empirical null distribution. The vertical line indicates the true ensemble Jaccard Stability Index (JSI) of 0.2035 (empirical $p < 0.002$), proving the feature selection captures non-random biological signals.
+- **Label Permutation Test**: Shuffling the subtype labels across 500 permutations builds an empirical null distribution. The vertical line indicates the true ensemble Jaccard Stability Index (JSI) of 0.3342 (empirical $p < 0.002$), proving the feature selection captures non-random biological signals.
 
 <p align="center">
   <img src="data/artifacts/fig28_gene_stability_histogram.png" width="48%" alt="Gene Selection Stability Histogram" />
@@ -268,7 +268,7 @@ To ensure the selected 178 consensus genes represent reproducible features rathe
 <a id="subtype-predictors"></a>
 ## 3. Subtype Predictors: High-Performance Diagnostic Classification
 
-We trained two main types of models on the 178-gene signature:
+We trained two main types of models on the 93-gene signature:
 - **Logistic Regression (Linear)**: A transparent, coefficient-based model.
 - **Support Vector Machine (RBF/Non-linear)**: A flexible model capable of learning complex non-linear decision boundaries.
 
@@ -280,20 +280,20 @@ On the unseen **TCGA Holdout** split (N=197), the Logistic Regression model achi
 
 Here is how our locked classifiers performed across all four patient cohorts:
 
-| Cohort | Samples (N) | Mapped Genes | Model Type | Accuracy | ROC-AUC | MCC | Status |
+| Cohort | Samples (N) | Mapped Genes | Model Type | Accuracy | F1 Macro | ROC-AUC | MCC | Status |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **TCGA Holdout** | 197 | 178 / 178 | Linear (LR) | **85.79%** | **0.9914** | **0.8738** | Internal Test |
-| **TCGA Holdout** | 197 | 178 / 178 | Non-Linear (SVM) | **87.31%** | **0.9916** | **0.8631** | Internal Test |
-| **SMC 2018** | 168 | 178 / 178 | Linear (LR) | **77.38%** | **0.9771** | **0.7267** | External Validation |
-| **SMC 2018** | 168 | 178 / 178 | Non-Linear (SVM) | **79.17%** | **0.9812** | **0.7442** | External Validation |
-| **SCAN-B** | 340 | 178 / 178 | Linear (LR) | **77.94%** | **0.9658** | **0.6975** | External Validation |
-| **SCAN-B** | 340 | 178 / 178 | Non-Linear (SVM) | **83.24%** | **0.9755** | **0.7639** | External Validation |
-| **METABRIC** | 1,756 | 78 / 178 | Linear (LR) | **69.08%** | **0.8718** | **0.5690** | Microarray Shift |
-| **METABRIC** | 1,756 | 78 / 178 | Non-Linear (SVM) | **72.10%** | **0.8939** | **0.6118** | Microarray Shift |
+| **TCGA Holdout** | 197 | 93 / 93 | Linear SVM (Linear) | **78.17%** | **72.70%** | **0.9649** | **0.6969** | Internal Test |
+| **TCGA Holdout** | 197 | 93 / 93 | Kernel SVM (RBF) | **85.79%** | **83.89%** | **0.9683** | **0.7958** | Internal Test |
+| **SMC 2018** | 168 | 93 / 93 | Linear SVM (Linear) | **78.57%** | **73.07%** | **0.9820** | **0.7446** | External Validation |
+| **SMC 2018** | 168 | 93 / 93 | Kernel SVM (RBF) | **76.79%** | **69.50%** | **0.9836** | **0.7920** | External Validation |
+| **SCAN-B** | 340 | 89 / 93 | Linear SVM (Linear) | **77.06%** | **79.05%** | **0.9626** | **0.7034** | External Validation |
+| **SCAN-B** | 340 | 89 / 93 | Kernel SVM (RBF) | **78.24%** | **79.23%** | **0.9664** | **0.7376** | External Validation |
+| **METABRIC** | 1,756 | 48 / 93 | Linear SVM (Linear) | **67.08%** | **61.96%** | **0.9053** | **0.6225** | Microarray Shift |
+| **METABRIC** | 1,756 | 48 / 93 | Kernel SVM (RBF) | **63.67%** | **57.08%** | **0.9052** | **0.6478** | Microarray Shift |
 
 > [!NOTE]
 > **Why did METABRIC performance drop?**
-> Only 78 of our 178 genes were mapped to the METABRIC microarray platform. Despite losing over half the features, the SVM model still managed **72.10%** accuracy and **0.8939** ROC-AUC, demonstrating the robust redundancy of our consensus molecular signature.
+> Only 48 of our 93 genes were mapped to the METABRIC microarray platform. Despite losing over half the features, the Kernel SVM model still managed **63.67%** accuracy and **0.9052** ROC-AUC (and the Linear SVM model achieved **67.08%** accuracy and **0.9053** ROC-AUC), demonstrating the robust redundancy of our consensus molecular signature.
 
 ### Internal Validation Performance
 
@@ -412,19 +412,19 @@ To prove CUS is not just a copy of generic anomaly detection scores, we correlat
 - Spearman correlation vs. PCA Reconstruction error: **0.6907**
 - Spearman correlation vs. Isolation Forest: **0.9398**
 
-Furthermore, CUS achieved a significantly higher Chi-Square statistic against PAM50 subtype ($\chi^2 = 262.03$, $p = 1.64 	imes 10^{-56}$) than all three baselines, confirming it captures uniquely structured biological variation.
+Furthermore, CUS achieved a significantly higher Chi-Square statistic against PAM50 subtype (χ² = 273.77, p = 4.90×10⁻⁵) than all three baselines, confirming it captures uniquely structured biological variation.
 
 ---
 
 <a id="prognosis-outcomes"></a>
 ## 6. Prognosis & Outcomes: Predicting Survival Risk
 
-To test if our 178 subtyping genes also encode clinical survival outcomes, we trained an L2-regularized **Ridge Cox Proportional Hazards** model to predict overall survival. This model calculates a continuous **Consensus Ridge Cox Risk Score (CRS)** for each patient.
+To test if our 93 subtyping genes also encode clinical survival outcomes, we trained an L2-regularized **Ridge Cox Proportional Hazards** model to predict overall survival. This model calculates a continuous **Consensus Ridge Cox Risk Score (CRS)** for each patient.
 
 The risk score generalized successfully to external cohorts:
-- **TCGA C-index**: **0.7621** (high predictive survival alignment)
-- **SCAN-B C-index**: **0.6493**
-- **METABRIC C-index**: **0.5834**
+- **TCGA C-index**: **0.7266** (high predictive survival alignment)
+- **SCAN-B C-index**: **0.6401**
+- **METABRIC C-index**: **0.5551**
 
 Stratifying patients into high-risk and low-risk groups using CRS shows significant survival separation:
 
@@ -435,7 +435,7 @@ Stratifying patients into high-risk and low-risk groups using CRS shows signific
 
 ### Overlap with Existing Commercial Clinical Panels
 
-We compared our 178 consensus genes against the genes used in four major clinical panels (PAM50, Oncotype DX, MammaPrint, EndoPredict):
+We compared our 93 consensus genes against the genes used in four major clinical panels (PAM50, Oncotype DX, MammaPrint, EndoPredict):
 - Our signature recovered **12 out of 50** PAM50 genes and **3 out of 21** Oncotype DX genes.
 - There was **0% overlap** with MammaPrint or EndoPredict.
 - Out of 112 unique genes across all clinical panels, only 13 overlapped with our signature, proving OncoResolve is complementary and captures novel diagnostic signals not currently utilized in clinic:
@@ -447,7 +447,7 @@ We compared our 178 consensus genes against the genes used in four major clinica
 <a id="biological-validation"></a>
 ## 7. Biological Validation: CRISPR Knockouts & LINCS Drug Discovery
 
-To ensure our 178 genes are functionally essential for breast cancer cells, we cross-referenced our signature with the Broad Institute's **DepMap CRISPR-Cas9 essentiality data**. DepMap measures whether knocking out a gene kills cancer cells (negative score = cell death).
+To ensure our 93 genes are functionally essential for breast cancer cells, we cross-referenced our signature with the Broad Institute's **DepMap CRISPR-Cas9 essentiality data**. DepMap measures whether knocking out a gene kills cancer cells (negative score = cell death).
 
 We found that our top driver genes are highly essential for the survival of breast cancer cell lines, validating that they are excellent therapeutic targets. Additionally, we deconvoluted the Tumour Microenvironment (TME) to map immune cell infiltrations across subtypes (identifying immune-cold Luminal A versus immune-rich Basal-like tumors) and ran pathway enrichment analysis:
 
