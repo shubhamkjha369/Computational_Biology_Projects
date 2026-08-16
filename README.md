@@ -47,7 +47,20 @@
 
 Breast cancer is a highly heterogeneous disease characterized by transcriptionally distinct molecular subtypes (PAM50 classification) that dictate therapeutic intervention and clinical prognosis. While computational subtyping from high-throughput RNA-seq transcriptomics has advanced precision oncology, many existing machine learning models suffer from technical flaws including row-level data leakage, unvalidated feature selections, and poor generalizability across disparate profiling platforms.
 
-Using a primary cohort of 1,084 patient transcriptomes (981 post-QC) from the TCGA-BRCA Pan-Cancer Atlas across all five PAM50 subtypes including Normal-like, we implement an anti-leakage cross-validation protocol where Z-score standardization (`StandardScaler`) and a consensus feature selection ensemble utilizing majority voting (ANOVA, LASSO, Random Forest Gini) are fit strictly within each training partition. Multi-class linear models achieve outstanding classification performance, which we explain globally and locally using LinearSHAP to map decisions to validated breast cancer biomarkers (e.g., *ESR1*, *ERBB2*, *MKI67*). Furthermore, we introduce the Composite Uniqueness Score (CUS)—an advanced N-of-1 mathematical framework combining Patient Similarity Network (PSN) mean Euclidean distance with Ridge Leave-One-Out (LOO) regression reconstruction error ($1 - R^2_{\text{LOO}}$) to measure transcriptomic uniqueness at the individual level. We show that individual uniqueness signatures are biologically orthogonal to global subtype signals (Jaccard similarity ~0.0), and we formally validate that CUS is not merely a proxy for standard anomaly detection baselines: Spearman correlations between CUS and Mahalanobis (covariance-adjusted), PCA-reconstruction, and Isolation Forest scores reveal unique topological alignments (r = 0.7594, 0.61, and 0.62, respectively), while CUS achieves a significantly higher chi-square statistic against PAM50 subtype (χ² = 270.22, p = 2.85×10⁻⁵⁷).
+---
+
+## 📌 Fact-Verified Literature-to-Section Gap Mapping Matrix
+
+The table below explicitly maps literature benchmark papers to identified research gaps, demonstrating how and where each limitation is resolved in OncoResolve:
+
+| Literature Reference & Citation | Identified Limitation / Research Gap | Where & How Addressed in OncoResolve |
+| :--- | :--- | :--- |
+| **Parker et al. (*J Clin Oncol* 2009)**<br>Original 50-gene PAM50 subtyping | **Rigid Categorical Stratification**: Forces every tumor into 1 of 5 discrete categories, ignoring within-subtype transcriptomic heterogeneity and N-of-1 biological outliers. | **Notebook Section 10 & 10.2**<br>**Preprint Section 3.4**<br>**README Section 6**<br>Introduces the *Composite Uniqueness Score (CUS)* combining Patient Similarity Network topology with Ridge LOO reconstruction residuals. |
+| **Paquet & Morrison (*Bioinformatics* 2015)**<br>Feature selection leakage in genomic ML | **Data Leakage & Performance Inflation**: Scaling data or selecting features on the full dataset before CV inflates accuracy by 5–15%, causing failure on real clinical data. | **Notebook Section 2 & 3**<br>**Preprint Section 2.2**<br>**README Section 3**<br>Implements the *Anti-Leakage Protocol (ALP)* locking variance filtering, Z-score scaling, and ensemble feature selection strictly within training folds. |
+| **Curtis et al. (*Nature* 2012) & METABRIC**<br>Microarray-based transcriptomic profiling | **Cross-Platform Domain Shift**: Classifiers trained on RNA-seq collapse on microarray platforms due to scale mismatch, probe dropout, and batch effects. | **Notebook Section 11**<br>**Preprint Section 3.2**<br>**README Section 5**<br>Zero-retraining evaluation across RNA-seq (SMC 2018 $N=168$, SCAN-B $N=340$) vs. microarray (METABRIC $N=1,756$), proving probe-level dropout effects. |
+| **Paik et al. (*NEJM* 2004)** (Oncotype DX)<br>**van 't Veer et al. (*Nature* 2002)** (MammaPrint) | **Static Commercial Signature Inflexibility**: Commercial panels rely on fixed 21–70 gene subsets, missing non-linear transcriptomic signals and exhibiting <12% gene overlap. | **Notebook Section 4, 8, 14**<br>**Preprint Section 3.5**<br>**README Section 4 & 7**<br>Discovers a 178-gene consensus signature with dual-architecture SHAP attributions, DepMap CRISPR validation, and CMap drug perturbagen matching. |
+| **Lundberg et al. (*Nat Mach Intell* 2020)**<br>SHAP explainable AI in clinical models | **Single-Model Explainability Bias**: SHAP attributions on a single model can reflect model-specific artifacts rather than true biological consensus. | **Notebook Section 8 & 8.6**<br>**Preprint Section 3.3**<br>**README Section 4**<br>Fuses attributions from Linear SVM and LightGBM models into a *Dual-Architecture Consensus SHAP Index* ($r > 0.88$ concordance). |
+| **Perou et al. (*Nature* 2000)**<br>Molecular portraits of human breast tumors | **Decoupled Subtyping vs. Survival Risk**: Subtype classifiers rarely integrate continuous prognostic risk scoring directly with diagnostic subtyping. | **Notebook Section 12**<br>**Preprint Section 3.3**<br>**README Section 6**<br>Trains an $L_2$-regularized Cox Proportional Hazards model on the 178-gene signature to generate the prognostic *Consensus Risk Score (CRS)*. |
 
 ---
 
@@ -337,23 +350,26 @@ Standard clinical practice often relies on the **Centroid Classifier** for subty
 ---
 
 <a id="explainable-ai"></a>
-## 4. Explainable AI: Understanding the Decisions (SHAP)
+## 4. Explainable AI: Model Attribution vs. Biological Drivers (SHAP)
 
-We don't just want models that predict; we want models whose logic matches medical science. We used **SHAP (SHapley Additive exPlanations)** to map the positive or negative contribution of each gene to a patient's subtype classification. 
+We applied **SHAP (SHapley Additive exPlanations)** to map local and global feature attributions across both models. SHAP values quantify how features contribute to model discrimination (predictive attribution) and represent **model-derived evidence of subtype-associated transcriptional signal**, rather than direct proof that identified genes are causal biological drivers or clinically validated targets.
 
-The SHAP multiclass summary highlights the top diagnostic drivers:
-- **ESR1 (Estrogen Receptor)**: Confirmed as the primary driver for Luminal A and Luminal B cancers (which are hormone-sensitive).
-- **ERBB2 (HER2 Receptor)**: Confirmed as the key driver for HER2-enriched cancers.
-- **KRT5 / KRT17 (Basal keratins)**: Confirmed as the key markers for Basal-like cancers (triple-negative).
-- **MKI67 (Pro-proliferation marker)**: Highly active in Luminal B and Basal-like cancers, representing aggressive cell growth.
+Key features reflect distributed subtype-associated transcriptional states:
+- **ESR1 (Estrogen Receptor)**: Primary predictive contribution for Luminal A and Luminal B cancers (hormone-sensitive lineage).
+- **ERBB2 (HER2 Receptor)**: Dominant feature contribution for HER2-enriched cancers (17q12 amplicon).
+- **KRT5 / KRT17 (Basal keratins)**: Strong predictive attributions for Basal-like cancers (basal epithelial lineage).
+- **MKI67 (Pro-proliferation marker)**: High contribution across high-grade subtypes (Luminal B, HER2, Basal).
+- **SOX10**: High consensus attribution associated with basal-like/TNBC disease (Klaric et al., *Histopathology* 2022; 70.9% sensitivity, 98.1% specificity for basal-like tumours).
+- **FOXA1**: Pioneer TF in ER accessibility and luminal identity (Hurtado et al., *Cancers* 2021); captures luminal state.
+- **CASP14 & KLK6/8**: High SHAP attributions reflecting predictive relevance for subtyping; supported by independent literature connecting expression with TNBC/HER2+ disease and adverse survival (Michaelidou et al., *Breast Cancer Res Treat* 2015; J Surg Oncol 2017).
 
 ### SHAP Explanations & Expression Heatmaps
 
-To bridge the gap between machine learning performance and clinical science, we used **SHAP (SHapley Additive exPlanations)** to map local and global feature attributions:
+To bridge machine learning performance with clinical science, we used **SHAP** to map local and global feature attributions:
 
-- **SHAP Multiclass Summary**: Aggregated Shapley values reveal the top transcriptomic drivers for each PAM50 molecular subtype (e.g., *ESR1* for Luminal A/B, *ERBB2* for HER2-enriched, and *KRT5* for Basal-like).
-- **Consensus SHAP Importance**: A unified feature importance index derived from fusing attributions from both LightGBM and Linear SVM models.
-- **Biomarker Expression & Network Correlation**: Heatmaps and network co-occurrence diagrams showing how these core biomarkers correlate with one another and co-express across the cohort.
+- **SHAP Multiclass Summary**: Aggregated Shapley values reveal top transcriptomic features for each PAM50 molecular subtype.
+- **Consensus SHAP Importance**: A unified feature importance index derived from fusing attributions from LightGBM and Linear SVM models.
+- **Biomarker Expression & Network Correlation**: Heatmaps and network co-occurrence diagrams showing how consensus features correlate and co-express across the cohort.
 
 <p align="center">
   <img src="data/artifacts/fig15_dual_shap_multiclass_summary.png" width="100%" alt="SHAP Global Summary" />
@@ -438,7 +454,7 @@ Stratifying patients into high-risk and low-risk groups using CRS shows signific
 We compared our 178 consensus genes against the genes used in four major clinical panels (PAM50, Oncotype DX, MammaPrint, EndoPredict):
 - Our signature recovered **12 out of 50** PAM50 genes and **3 out of 21** Oncotype DX genes.
 - There was **0% overlap** with MammaPrint or EndoPredict.
-- Out of 112 unique genes across all clinical panels, only 13 overlapped with our signature, proving OncoResolve is complementary and captures novel diagnostic signals not currently utilized in clinic:
+- Out of 112 unique genes across all clinical panels, only 13 overlapped with our signature, demonstrating that OncoResolve captures candidate feature sets outside predefined clinical signatures:
 
 ![Clinical Panel Overlap](data/artifacts/fig_clinical_panel_overlap.png)
 
