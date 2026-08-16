@@ -357,7 +357,7 @@ st.sidebar.markdown("<div class='custom-hr'></div>", unsafe_allow_html=True)
 st.sidebar.markdown("**External Validation Cohorts**")
 st.sidebar.caption("SMC 2018: N=168 (RNA-seq) | SCAN-B: N=340 (RNA-seq) | METABRIC: N=1,756 (microarray)")
 st.sidebar.markdown("<div class='custom-hr'></div>", unsafe_allow_html=True)
-st.sidebar.caption("OncoResolve v3.3.3 — TCGA-BRCA edition.")
+st.sidebar.caption("OncoResolve v3.4.0 — TCGA-BRCA edition.")
 
 # =============================================================================
 # PLOTLY DEFAULTS (clinical light theme)
@@ -1245,7 +1245,7 @@ st.markdown("<div class='custom-hr'></div>", unsafe_allow_html=True)
 st.markdown("""
 <div style="text-align:center; padding:10px 0;">
     <span style="color:#64748b; font-size:13.5px;">
-       <b>OncoResolve v3.3.3 — Breast Cancer Transcriptomics Pipeline</b><br/>
+       <b>OncoResolve v3.4.0 — Breast Cancer Transcriptomics Pipeline</b><br/>
     </span><br>
     <span style="color:#94a3b8; font-size:11.5px;">
         TCGA-BRCA RNA-seq (N=1,084) &nbsp;|&nbsp; SMC 2018 (N=166) &nbsp;|&nbsp; SCAN-B (N=317) &nbsp;|&nbsp; METABRIC (N=1,608) &nbsp;|&nbsp; PAM50 Subtyping &nbsp;|&nbsp; explainable AI

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="oncoresolve",
-    version="1.0.0",
+    version="3.4.0",
     author="Shubham Jha",
     author_email="shubhamkjha369@gmail.com",
     description="A High-Hygiene Explainable AI and Patient-Centric Uniqueness Framework for Breast Cancer Subtyping",

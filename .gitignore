@@ -77,6 +77,10 @@ download_tcga_*.py
 sample_README.md
 social.txt
 
+# Pre-print folder (LaTeX source and output)
+pre-print/
+pre-print
+
 # notebook raw py files
 OncoResolve_Subtyping_and_Precision_Profiling.py
 OncoResolve_Model_Training_Validation.py
