@@ -77,14 +77,9 @@ download_tcga_*.py
 sample_README.md
 social.txt
 
-# Pre-print folder (track TeX source & final PDF, ignore temp build files)
-pre-print/*.aux
-pre-print/*.log
-pre-print/*.out
-pre-print/*.toc
-pre-print/*.synctex.gz
-pre-print/*.fls
-pre-print/*.fdb_latexmk
+# Pre-print folder (unpublished manuscript source and PDF - local only)
+pre-print/
+pre-print
 
 # notebook raw py files
 OncoResolve_Subtyping_and_Precision_Profiling.py
