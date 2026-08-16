@@ -276,8 +276,8 @@ a.soc:hover svg {{ opacity:1; }}
 
 <!-- DOI + Colab badges -->
 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-  <a href="https://doi.org/10.5281/zenodo.20565148" target="_blank" title="Cite on Zenodo">
-    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.20565148.svg"
+  <a href="https://doi.org/10.5281/zenodo.21967841" target="_blank" title="Cite on Zenodo">
+    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.21967841.svg"
          alt="DOI" style="margin-top: 5px; height: 20px;">
   </a>
   <a href="https://colab.research.google.com/github/shubhamkjha369/OncoResolve-Breast-Cancer-Transcriptomics/blob/main/notebooks/OncoResolve_Subtyping_and_Precision_Profiling.ipynb"
