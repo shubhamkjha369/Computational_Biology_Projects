@@ -29,7 +29,7 @@
 - [Project Aim](#project-aim)
 - [Pipeline Workflow & Architecture](#pipeline-workflow)
 - [1. Patient Cohorts: Validating Across the Globe](#patient-cohorts)
-- [2. Biomarker Discovery: Sifting for the Core 93 Genes](#biomarker-discovery)
+- [2. Biomarker Discovery: Sifting for the Core 178 Genes](#biomarker-discovery)
 - [3. Subtype Predictors: High-Performance Diagnostic Classification](#subtype-predictors)
 - [4. Explainable AI: Understanding the Decisions (SHAP)](#explainable-ai)
 - [5. N-of-1 Personal Profiling: The Composite Uniqueness Score (CUS)](#personal-profiling)
@@ -255,7 +255,7 @@ Because the measurement scale of microarrays is completely different from RNA se
 ---
 
 <a id="biomarker-discovery"></a>
-## 2. Biomarker Discovery: Sifting for the Core 93 Genes
+## 2. Biomarker Discovery: Sifting for the Core 178 Genes
 
 Out of the 20,000 genes in the human genome, only a fraction drive breast cancer subtyping. We built a **tri-method consensus ensemble selector** that votes on the most important genes across three mathematical views:
 - **ANOVA (Linear separation)**: Looks for genes that show different average levels between subtypes.
@@ -463,7 +463,7 @@ We compared our 178 consensus genes against the genes used in four major clinica
 <a id="biological-validation"></a>
 ## 7. Biological Validation: CRISPR Knockouts & LINCS Drug Discovery
 
-To ensure our 93 genes are functionally essential for breast cancer cells, we cross-referenced our signature with the Broad Institute's **DepMap CRISPR-Cas9 essentiality data**. DepMap measures whether knocking out a gene kills cancer cells (negative score = cell death).
+To ensure our 178 consensus genes are functionally essential for breast cancer cells, we cross-referenced our signature with the Broad Institute's **DepMap CRISPR-Cas9 essentiality data**. DepMap measures whether knocking out a gene kills cancer cells (negative score = cell death).
 
 We found that our top driver genes are highly essential for the survival of breast cancer cell lines, validating that they are excellent therapeutic targets. Additionally, we deconvoluted the Tumour Microenvironment (TME) to map immune cell infiltrations across subtypes (identifying immune-cold Luminal A versus immune-rich Basal-like tumors) and ran pathway enrichment analysis:
 

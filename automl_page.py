@@ -73,8 +73,8 @@ def _prediction_color_map(labels):
 # =============================================================================
 def _load_and_align_features(df, top_deg_genes, entrez_to_hugo):
     """
-    Transposes, filters, and aligns the uploaded dataframe to match the 93
-    consensus biomarker signature, applying log2 scaling if linear expected counts are detected.
+    Transposes, filters, and aligns the uploaded dataframe to match the consensus
+    biomarker signature, applying log2 scaling if linear expected counts are detected.
     """
     raw_df = df.copy()
 
@@ -298,13 +298,13 @@ div[data-testid="stFileUploader"] {
                 if ground_truth_col and ground_truth_col in raw_df.columns:
                     y_true_raw = raw_df[ground_truth_col].copy()
 
-                # Align features to 93 signature
+                # Align features to consensus signature
                 X_aligned, patient_ids, mapped_features, missing_features = _load_and_align_features(
                     raw_df, top_deg_genes, entrez_to_hugo
                 )
 
                 if len(mapped_features) == 0:
-                    st.error("Error: The uploaded dataset does not share any mapped HUGO symbols with the 93 consensus biomarker signature. Check your column labels.")
+                    st.error("Error: The uploaded dataset does not share any mapped HUGO symbols with the consensus biomarker signature. Check your column labels.")
                     return
 
                 # Choose model pipeline
@@ -347,7 +347,7 @@ div[data-testid="stFileUploader"] {
                 # Render metrics
                 st.markdown("<div class='custom-hr'></div>", unsafe_allow_html=True)
                 st.markdown(
-                    f'<div class="success-box"><b>Prediction Complete!</b> Successfully aligned <b>{len(mapped_features)}/93</b> signature genes.</div>',
+                    f'<div class="success-box"><b>Prediction Complete!</b> Successfully aligned <b>{len(mapped_features)}/{len(top_deg_genes)}</b> signature genes.</div>',
                     unsafe_allow_html=True
                 )
 

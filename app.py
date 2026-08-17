@@ -352,7 +352,7 @@ page = st.session_state.active_page
 st.sidebar.markdown("<div class='custom-hr'></div>", unsafe_allow_html=True)
 st.sidebar.markdown("**TCGA-BRCA Pan-Can Atlas 2018**")
 st.sidebar.caption("Illumina HiSeq RNA-seq V2 (RSEM batch-normalized).")
-st.sidebar.caption("N=1,084 patients (981 post-QC) | 93 consensus genes | 5 PAM50 subtypes | OS+DFS survival")
+st.sidebar.caption("N=1,084 patients (981 post-QC) | 178 consensus genes | 5 PAM50 subtypes | OS+DFS survival")
 st.sidebar.markdown("<div class='custom-hr'></div>", unsafe_allow_html=True)
 st.sidebar.markdown("**External Validation Cohorts**")
 st.sidebar.caption("SMC 2018: N=168 (RNA-seq) | SCAN-B: N=340 (RNA-seq) | METABRIC: N=1,756 (microarray)")
@@ -623,7 +623,7 @@ elif page == "Clustering & Networks":
 
 elif page == "Feature Selection":
     st.markdown('<div class="main-title">Consensus <span class="main-title-accent">Biomarker Discovery</span></div>', unsafe_allow_html=True)
-    st.markdown('<div class="info-box">We run a dual-architecture SHAP feature selection pipeline, fusing linear (Linear SVM) and non-linear (RBF-SVM) importance. Genes are filtered via Welch\'s t-test DGE and ranked by consensus score to select 93 biomarkers.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="info-box">We run a tri-method ensemble feature selection pipeline (ANOVA, LASSO L1, Random Forest Gini), fusing linear and non-linear importance. Genes are filtered and ranked by consensus voting to select 178 consensus biomarkers.</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="section-title">Top Consensus Biomarkers</div>', unsafe_allow_html=True)
     if consensus_genes is not None:
@@ -668,7 +668,7 @@ elif page == "Feature Selection":
 
 elif page == "Model Performance":
     st.markdown('<div class="main-title">Classifier Benchmarks & <span class="main-title-accent">Dual-Architecture Performance</span></div>', unsafe_allow_html=True)
-    st.markdown('<div class="info-box">We evaluate classification models on the TCGA holdout split and via cross-validation, highlighting the finalized Linear SVM (Linear) and Support Vector Machine (RBF) classifiers. The Support Vector Machine (RBF) is our best performing model overall, achieving 87.31% Accuracy and 82.27% Macro F1-score on the holdout set, and demonstrating superior transportability across external validation cohorts. Tree-based ensembles were rejected due to F1 instability on imbalanced classes.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="info-box">We evaluate classification models on the TCGA holdout split (N=197) and via cross-validation, highlighting the finalized LightGBM (Non-Linear) and Linear SVM (Linear) classifiers. LightGBM is our top performing model overall, achieving 88.83% Accuracy and 84.96% Macro F1-score on the holdout set, with Linear SVM achieving 84.77% Accuracy and 80.49% Macro F1-score while demonstrating superior transportability across external validation cohorts.</div>', unsafe_allow_html=True)
 
     t_perf, t_cv = st.tabs(["Holdout Performance Benchmarks", "Cross-Validation & Hyperparameters"])
 
@@ -677,8 +677,8 @@ elif page == "Model Performance":
         
         # Build clean holdout df from the audited results
         holdout_metrics_df = pd.DataFrame([
-            {"Model": "Linear SVM (Linear)", "Accuracy": 0.8629, "Macro F1-Score": 0.8217, "95% Bootstrap CI (F1)": "[0.7306, 0.8899]"},
-            {"Model": "Support Vector Machine (RBF)", "Accuracy": 0.8731, "Macro F1-Score": 0.8227, "95% Bootstrap CI (F1)": "[0.7003, 0.9031]"}
+            {"Model": "LightGBM (Non-Linear)", "Accuracy": 0.8883, "Macro F1-Score": 0.8496, "95% Bootstrap CI (F1)": "[0.7546, 0.9121]"},
+            {"Model": "Linear SVM (Linear)", "Accuracy": 0.8477, "Macro F1-Score": 0.8049, "95% Bootstrap CI (F1)": "[0.7206, 0.8719]"}
         ])
 
         fig = px.bar(holdout_metrics_df, x="Model", y=["Accuracy", "Macro F1-Score"], barmode="group",
