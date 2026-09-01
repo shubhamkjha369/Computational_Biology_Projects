@@ -193,16 +193,16 @@ Breast cancer is a highly heterogeneous disease. The **PAM50 molecular classific
 
 **OncoResolve v3.4.0** is designed to address six specific technical and clinical objectives:
 
-1. **Anti-leakage dual-architecture classification** — Deploy a finalized **LightGBM (Non-Linear) + Linear Support Vector Machine (Linear SVM)** dual-model pipeline trained on **981 TCGA-BRCA** patients (including Normal-like subtype), where `StandardScaler` and ensemble feature selection (ANOVA, LASSO, Random Forest) are fit strictly *inside* each cross-validation training fold — eliminating the feature-selection leakage that affects >90% of published transcriptomics ML papers. Holdout performance (N=197): LightGBM Accuracy=**88.83%**, ROC-AUC=**0.9750** | Linear SVM Accuracy=**84.77%**, ROC-AUC=**0.9737**.
+1. **Anti-leakage dual-architecture classification** — Deploy a finalized **LightGBM (Non-Linear) + Linear Support Vector Machine (Linear SVM)** dual-model pipeline trained on **981 TCGA-BRCA** patients (including Normal-like subtype), where `StandardScaler` and ensemble feature selection (ANOVA, LASSO, Random Forest) are fit strictly *inside* each cross-validation training fold — eliminating the feature-selection leakage that affects >90% of published transcriptomics ML papers. Holdout performance (N=197): LightGBM Accuracy=**88.32%**, Macro F1=**85.27%**, ROC-AUC=**0.9737** | Linear SVM Accuracy=**86.29%**, Macro F1=**82.17%**, ROC-AUC=**0.9770**.
 
 2. **178-gene consensus biomarker discovery with SHAP explainability** — Identify a stable, biologically validated set of **178 consensus genes** across all five PAM50 subtypes via a tri-method ensemble selector (ANOVA F-test + LASSO L1 + Random Forest Gini). Explain predictions using SHAP attributions for both LightGBM and Linear SVM, and fuse attributions into a **Consensus SHAP Importance Index** that resolves inter-model scale differences. Key recovered biomarkers: *ERBB2*, *ESR1*, *KRT5*, *MKI67*, *GATA3*, *GRB7*, *FOXA1*, *STARD3*.
 
 3. **N-of-1 Composite Uniqueness Score (CUS)** — Quantify individual patient transcriptomic uniqueness using an original mathematical framework combining Patient Similarity Network (PSN) mean Euclidean distance with Ridge Leave-One-Out (LOO) regression reconstruction error ($1 - R^2_{\text{LOO}}$). Each patient's 178-gene profile is predicted by a Ridge model trained on all other patients; low R² indicates a transcriptomically unusual patient. Formally validate that CUS is *not* a proxy for standard anomaly scores: CUS achieves the highest subtype-discriminative chi-square (χ²=**270.22**, p=2.85×10⁻⁵⁷) and benchmarks against regularised Mahalanobis distance (C-index=**0.7668**), PCA reconstruction, and Isolation Forest baselines, while Jaccard overlap with global DGE pathways is ≈0.0 (confirming private biological signal).
 
 4. **Cross-platform validation on three independent external cohorts** — Evaluate the completely locked discovery pipeline (no retraining) on:
-   - **SMC 2018** (South Korea, Illumina RNA-seq, N=168): Linear SVM Accuracy=**83.33%**, ROC-AUC=**0.9856** | LightGBM Accuracy=**79.17%**
-   - **SCAN-B / GSE96058** (Sweden, Illumina NextSeq, N=340): LightGBM Accuracy=**83.24%**, ROC-AUC=**0.9634** | Linear SVM Accuracy=**81.18%**
-   - **METABRIC** (Canada/UK, Illumina HT-12 microarray, N=1,756): Linear SVM Accuracy=**72.78%**, ROC-AUC=**0.9168** | LightGBM Accuracy=**71.41%**
+   - **SCAN-B / GSE96058** (Sweden, Illumina NextSeq, N=340, 168/178 genes): Linear SVM Accuracy=**82.94%**, Macro F1=**83.13%**, ROC-AUC=**0.9675** | LightGBM Accuracy=**79.71%**, Macro F1=**76.34%**, ROC-AUC=**0.9447**
+   - **SMC 2018** (South Korea, Illumina RNA-seq, N=168, 178/178 genes): LightGBM Accuracy=**78.57%**, Macro F1=**78.17%**, ROC-AUC=**0.9728** | Linear SVM Accuracy=**78.57%**, Macro F1=**74.32%**, ROC-AUC=**0.9719**
+   - **METABRIC** (Canada/UK, Illumina HT-12 microarray, N=1,974, 147/178 genes): LightGBM Accuracy=**67.98%**, Macro F1=**60.59%**, ROC-AUC=**0.8790** | Linear SVM Accuracy=**67.63%**, Macro F1=**61.03%**, ROC-AUC=**0.8877**
 
    Cross-platform transfer requires per-cohort independent Z-score harmonization and strict alphabetical feature alignment — bypassing these steps collapses SVM accuracy to 11–21%.
 
@@ -290,24 +290,24 @@ To avoid a common flaw in bioinformatics papers—performing feature selection g
 
 ### Classifying the Holdout and External Cohorts
 
-On the unseen **TCGA Holdout** split (N=197), LightGBM achieved **88.83%** accuracy (0.9750 ROC-AUC) and Linear SVM achieved **84.77%** accuracy (0.9737 ROC-AUC). 
+On the unseen **TCGA Holdout** split (N=197), LightGBM achieved **88.32%** accuracy (**85.27%** Macro F1, 0.9737 ROC-AUC) and Linear SVM achieved **86.29%** accuracy (**82.17%** Macro F1, 0.9770 ROC-AUC). 
 
 Here is how our locked classifiers performed across all four patient cohorts:
 
-| Cohort | Samples (N) | Mapped Genes | Model Architecture | Accuracy | F1 Macro | OvR ROC-AUC | MCC | Evaluation Status |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **TCGA Holdout** | 197 | 178 / 178 | **LightGBM (Non-Linear)** | **88.83%** | **84.96%** | **0.9750** | **0.8402** | Locked Holdout Test |
-| **TCGA Holdout** | 197 | 178 / 178 | **Linear SVM (Linear)** | **84.77%** | **80.49%** | **0.9737** | **0.7818** | Locked Holdout Test |
-| **SMC 2018** | 168 | 178 / 178 | **Linear SVM (Linear)** | **83.33%** | **78.68%** | **0.9856** | **0.7570** | External Validation |
-| **SMC 2018** | 168 | 178 / 178 | **LightGBM (Non-Linear)** | **79.17%** | **75.46%** | **0.9839** | **0.7027** | External Validation |
-| **SCAN-B** | 340 | 168 / 178 | **LightGBM (Non-Linear)** | **83.24%** | **79.91%** | **0.9634** | **0.7548** | External Validation |
-| **SCAN-B** | 340 | 168 / 178 | **Linear SVM (Linear)** | **81.18%** | **79.25%** | **0.9576** | **0.7291** | External Validation |
-| **METABRIC** | 1,756 | 147 / 178 | **Linear SVM (Linear)** | **72.78%** | **68.21%** | **0.9168** | **0.6074** | Microarray Shift |
-| **METABRIC** | 1,756 | 147 / 178 | **LightGBM (Non-Linear)** | **71.41%** | **66.42%** | **0.9163** | **0.5898** | Microarray Shift |
+| Cohort | Samples (N) | Mapped Genes | Model Architecture | Accuracy | Bal. Acc | Precision Macro | Recall Macro | F1 Macro | OvR ROC-AUC | MCC | Evaluation Status |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **TCGA Holdout** | 197 | 178 / 178 | **LightGBM (Non-Linear)** | **88.32%** | **85.89%** | **84.72%** | **85.89%** | **85.27%** | **0.9737** | **0.8261** | Locked Holdout Test |
+| **TCGA Holdout** | 197 | 178 / 178 | **Linear SVM (Linear)** | **86.29%** | **85.30%** | **79.89%** | **85.30%** | **82.17%** | **0.9770** | **0.8033** | Locked Holdout Test |
+| **SCAN-B** | 340 | 168 / 178 | **Linear SVM (Linear)** | **82.94%** | **83.99%** | **82.66%** | **83.99%** | **83.13%** | **0.9675** | **0.7559** | External Validation |
+| **SCAN-B** | 340 | 168 / 178 | **LightGBM (Non-Linear)** | **79.71%** | **74.26%** | **79.96%** | **74.26%** | **76.34%** | **0.9447** | **0.6950** | External Validation |
+| **SMC 2018** | 168 | 178 / 178 | **LightGBM (Non-Linear)** | **78.57%** | **87.77%** | **76.59%** | **87.77%** | **78.17%** | **0.9728** | **0.7390** | External Validation |
+| **SMC 2018** | 168 | 178 / 178 | **Linear SVM (Linear)** | **78.57%** | **87.27%** | **72.52%** | **87.27%** | **74.32%** | **0.9719** | **0.7356** | External Validation |
+| **METABRIC** | 1,974 | 147 / 178 | **LightGBM (Non-Linear)** | **67.98%** | **59.39%** | **65.05%** | **59.39%** | **60.59%** | **0.8790** | **0.5696** | Microarray Shift |
+| **METABRIC** | 1,974 | 147 / 178 | **Linear SVM (Linear)** | **67.63%** | **59.86%** | **64.74%** | **59.86%** | **61.03%** | **0.8877** | **0.5666** | Microarray Shift |
 
 > [!NOTE]
-> **Why did METABRIC performance drop?**
-> 147 of our 178 consensus genes (82.6% coverage) were mapped to the METABRIC microarray platform. Linear SVM achieved **72.78%** accuracy and LightGBM achieved **71.41%** accuracy (both with ROC-AUC > 0.916), demonstrating the robust transferability and redundancy of our consensus molecular signature across profiling technologies.
+> **Microarray Shift in METABRIC (N=1,974)**
+> 147 of 178 consensus genes (82.6% coverage) were mapped to the METABRIC microarray platform. Zero-retraining evaluation across 1,974 patients yields **67.98%** accuracy and **0.8877** ROC-AUC under severe platform shift, demonstrating robust cross-platform generalization without joint co-normalization.
 
 ### Internal Validation Performance
 
