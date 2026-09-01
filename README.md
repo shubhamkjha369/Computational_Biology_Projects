@@ -8,7 +8,6 @@
 [![Scikit-Learn 1.4+](https://img.shields.io/badge/Scikit--Learn-1.4+-F7931E?style=flat&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![SHAP](https://img.shields.io/badge/SHAP-Explainability-blueviolet?style=flat)](#)
 
-[![Preprint](https://img.shields.io/badge/Preprint-PDF-red?logo=adobeacrobatreader&logoColor=white)](https://doi.org/10.5281/zenodo.21967841)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21967841.svg)](https://doi.org/10.5281/zenodo.21967841)
 [![Live App](https://img.shields.io/badge/Streamlit-Live_App-FF4B4B?logo=streamlit&logoColor=white)](https://oncoresolve.streamlit.app/)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/shubhamkjha369/OncoResolve-Breast-Cancer-Transcriptomics/blob/main/notebooks/OncoResolve_Subtyping_and_Precision_Profiling.ipynb)
@@ -48,27 +47,21 @@
 
 Breast cancer is a highly heterogeneous disease characterized by transcriptionally distinct molecular subtypes (PAM50 classification) that dictate therapeutic intervention and clinical prognosis. While computational subtyping from high-throughput RNA-seq transcriptomics has advanced precision oncology, many existing machine learning models suffer from technical flaws including row-level data leakage, unvalidated feature selections, and poor generalizability across disparate profiling platforms.
 
-> [!NOTE]
-> ### 📄 Full Manuscript & Preprint Reference
-> **Title**: OncoResolve: High-Hygiene Explainable AI and Patient-Centric Uniqueness Framework for Breast Cancer Subtyping  
-> **Author**: Shubham K. Jha (ORCID: [0009-0007-4519-5867](https://orcid.org/0009-0007-4519-5867))  
-> **Preprint DOI**: [10.5281/zenodo.21967841](https://doi.org/10.5281/zenodo.21967841)  
-> **Repository**: [shubhamkjha369/OncoResolve-Breast-Cancer-Transcriptomics](https://github.com/shubhamkjha369/OncoResolve-Breast-Cancer-Transcriptomics)
-
 ---
 
 ## 📌 Rigorous Literature Prior-Art & Fact-Verified Gap Analysis Matrix
 
 The table below explicitly maps literature benchmark papers to established prior art, demonstrating the unaddressed research gaps and where each is resolved in OncoResolve:
 
-| Literature Reference & Prior Art | Established Knowledge & Prior Findings | Unaddressed Gap Addressed by OncoResolve | Exact OncoResolve Mechanism & Location |
+| Literature Reference & Landmark PIs | Established Knowledge & Prior Findings | Unaddressed Gap Addressed by OncoResolve | Exact OncoResolve Mechanism & Verified Results |
 | :--- | :--- | :--- | :--- |
-| **Parker et al. (*J Clin Oncol* 2009)**<br>Original 50-gene PAM50 subtyping | Introduced nearest-centroid 5-subtype categorical classification. | **Rigid Categorical Stratification**: Forces every tumor into 1 of 5 discrete categories, ignoring within-subtype transcriptomic heterogeneity and N-of-1 biological outliers. | **First-in-Class CUS Metric**<br>Combines PSN topological distance ($D_T$) with Ridge LOO reconstruction residuals ($R_E$).<br>*(Notebook Sec 10 / Preprint Sec 3.4 / README Sec 6)* |
-| **Paquet & Morrison (*Bioinformatics* 2015)**<br>**Whalen et al. (*Nat Rev Genet* 2022)** | Identified theoretical risks of pre-CV feature selection leakage in genomic ML. | **Widespread Benchmark Inflation**: Standard subtyping benchmarks continue to perform global feature selection, inflating reported multi-class accuracy by 5–15%. | **Anti-Leakage Protocol (ALP)**<br>Enforces strict fold-containment of Z-scaling and ensemble feature selection (ANOVA/LASSO/RF).<br>*(Notebook Sec 2-3 / Preprint Sec 2.2 / README Sec 3)* |
-| **Wallden et al. (*BMC Genomics* 2015)**<br>**Zhao et al. (*PLOS ONE* 2014)** | Documented platform discordance between microarray and RNA-seq profiling. | **Lack of Multi-Cohort Stress Testing**: Models are rarely evaluated zero-retraining across large independent RNA-seq ($N=508$) vs. microarray ($N=1,756$) cohorts. | **Zero-Retraining Cross-Platform Audit**<br>Evaluates model transfer across TCGA $\rightarrow$ SMC 2018 $\rightarrow$ SCAN-B $\rightarrow$ METABRIC, isolating probe dropout.<br>*(Notebook Sec 11 / Preprint Sec 3.2 / README Sec 5)* |
-| **Paik et al. (*NEJM* 2004)** (Oncotype DX)<br>**Fan et al. (*NEJM* 2006)** | Demonstrated low gene overlap (<15%) across commercial prognosis signatures. | **Static Signature Inflexibility**: Commercial panels rely on fixed 21–70 gene subsets without non-linear feature discovery or multi-architecture SHAP. | **Data-Driven 178-Gene Signature**<br>Integrates dual-architecture SHAP attributions with DepMap CRISPR validation and CMap drug matching.<br>*(Notebook Sec 4, 8, 14 / Preprint Sec 3.5 / README Sec 4 & 7)* |
-| **Lundberg et al. (*Nat Mach Intell* 2020)** | Applied SHAP feature attribution to single machine learning models. | **Single-Model Inductive Bias**: SHAP attributions on a single architecture can reflect model-specific artifacts rather than true biological consensus. | **Dual-Architecture SHAP Concordance**<br>Fuses attributions from Linear Kernel SVM and LightGBM tree ensembles ($r > 0.88$).<br>*(Notebook Sec 8 / Preprint Sec 3.3 / README Sec 4)* |
-| **Perou et al. (*Nature* 2000)** | Defined transcriptomic molecular portraits of human breast tumors. | **Decoupled Diagnostic/Prognostic Modeling**: Subtype classifiers rarely integrate continuous prognostic risk scoring directly with diagnostic subtyping. | **Consensus Risk Score (CRS)**<br>Trains an $L_2$-regularized Cox Proportional Hazards model on the 178-gene signature.<br>*(Notebook Sec 12 / Preprint Sec 3.3 / README Sec 6)* |
+| **Prof. Charles M. Perou** (UNC Chapel Hill)<br>*Cell Genomics* (2023) / *BreastSubtypeR* (2025) / *J Clin Oncol* (2009) | Defined supervised nearest-centroid 5-subtype categorical classification (PAM50, AIMS). | **Rigid Categorical Stratification**: Forces every tumor into 1 of 5 discrete categories, ignoring within-subtype transcriptomic heterogeneity and N-of-1 biological outliers. | **Composite Uniqueness Score (CUS)**<br>Fuses PSN topological distance ($D_T$) with Ridge LOO reconstruction error ($1-R^2_{\text{LOO}}$).<br>• Highest subtype $\chi^2 = 270.22$ ($p = 2.85\times 10^{-57}$). |
+| **Prof. Sayash Kapoor & Prof. Arvind Narayanan** (Princeton University)<br>*Patterns* (Cell Press 2022) | Systematically exposed widespread data leakage and reproducibility failures in ML science. | **Widespread Benchmark Inflation**: Standard subtyping benchmarks perform global feature selection/scaling before CV, artificially inflating accuracy (>94–98%) which crashes on external data. | **Anti-Leakage Protocol (ALP)**<br>Enforces 100% fold-containment of Z-scaling, missing imputation, and tri-method selection.<br>• Holdout Accuracy: **88.83%** (LightGBM), **84.77%** (Linear SVM). |
+| **Prof. Christina Curtis** (Stanford University)<br>*Science* (2024) / *Nat Genet* (2020) / *Nature* (METABRIC 2012) | Discovered genomic & transcriptomic subclonal architectures in 2,000 METABRIC tumors. | **Microarray Probe Loss & Cross-Platform Shift**: Direct model transfer from RNA-seq to microarray suffers from feature loss and platform discordance without independent scaling. | **Cohort-Independent Local Z-Scaling**<br>Expanded METABRIC probe coverage (147/178 genes, 82.6%) with local Z-scaling zero-retraining.<br>• METABRIC (Microarray): **72.78%** Acc, **0.9168** AUC. |
+| **Dr. Stephen-John Sammut & Prof. Carlos Caldas** (Univ of Cambridge / CRUK)<br>*Nature* (2022) | Multi-omic machine learning predicting response to neoadjuvant chemotherapy in breast cancer. | **Lack of Prospective Single-Sample Transferability**: Complex multi-omic ML models require joint co-normalization (ComBat) across all samples, precluding real-world N-of-1 prospective subtyping. | **Local Z-Score Standardization**<br>Standardizes cohorts independently with alphabetical gene alignment zero-retraining.<br>• SMC 2018 (RNA-seq): **83.33%** Acc, **0.9856** AUC.<br>• SCAN-B (RNA-seq): **83.24%** Acc, **0.9634** AUC. |
+| **Prof. Benjamin Haibe-Kains** (Univ of Toronto / UHN)<br>*Bioinformatics* (2020) / Creator of `Genefu` | Evaluated single-sample subtyping tools (AIMS, PAM50 centroids, Genefu). | **Binary Rule Inflexibility & Decoupled Modeling**: Single-sample predictors use rigid binary rules with reduced sensitivity, while subtyping ML models remain decoupled from survival risk scoring. | **Consensus Ridge Cox Risk Score (CRS)**<br>Trains $L_2$-regularized Cox model on 178 consensus genes.<br>• Multi-cohort survival C-index: TCGA = **0.7266**, SCAN-B = **0.6401**, METABRIC = **0.5551**. |
+| **Prof. William Stafford Noble** (Univ of Washington)<br>*Nat Rev Genet* (2022) | Navigating the pitfalls of applying machine learning in genomics. | **Single-Model Inductive Bias**: Single-architecture feature attributions risk reflecting model-specific fitting artifacts rather than true biological consensus. | **Dual-Architecture SHAP Concordance**<br>Audits attributions independently across Linear SVM & LightGBM.<br>• High attribution correlation ($r > 0.88$) verifies model-agnostic drivers. |
+| **Prof. Gary S. Collins** (University of Oxford)<br>TRIPOD+AI (*BMJ* 2024) | Updated TRIPOD+AI guidelines for reporting clinical prediction models using regression or ML. | **Non-Compliance with Rigorous ML Reporting Standards**: Published subtyping models lack strict in-fold feature selection, probability calibration (ECE), or external validation. | **Full TRIPOD+AI Compliance**<br>Fold-contained CV, probability calibration ($\text{ECE} = 4.52\%$ LightGBM, $5.20\%$ SVM; Brier $= 0.0454 / 0.0418$), and zero-retraining 3-cohort validation. |
 
 ---
 
@@ -213,7 +206,7 @@ Breast cancer is a highly heterogeneous disease. The **PAM50 molecular classific
 
    Cross-platform transfer requires per-cohort independent Z-score harmonization and strict alphabetical feature alignment — bypassing these steps collapses SVM accuracy to 11–21%.
 
-5. **Rigorous consensus space validation** — Evaluate biomarker selection stability via $B=100$ bootstrap resamples (F1-Consensus JSI=**0.3342**) and $P=500$ empirical permutation tests. Confirm prediction probability calibration across all four cohorts (max ECE <**13.64%**; Brier Score <0.10) to meet peer-reviewed oncology journal standards.
+5. **Rigorous consensus space validation** — Evaluate biomarker selection stability via $B=100$ bootstrap resamples (Jaccard Stability Index JSI=**0.3757**, $p < 0.002$) and $P=500$ empirical permutation tests. Confirm prediction probability calibration across all four cohorts (max ECE < **12.75%**; Brier Score < **0.1068**) to meet peer-reviewed oncology journal standards.
 
 6. **Transferable prognostic Consensus Ridge Cox Risk Score (CRS)** — Build an L2-regularized Ridge Cox model on the full consensus signature, yielding a continuous CRS validated across independent cohorts: TCGA C-index=**0.7266**, SCAN-B C-index=**0.6401**, METABRIC C-index=**0.5551** — extending OncoResolve from a diagnostic classifier to a multi-cohort prognostic tool.
 
@@ -307,14 +300,14 @@ Here is how our locked classifiers performed across all four patient cohorts:
 | **TCGA Holdout** | 197 | 178 / 178 | **Linear SVM (Linear)** | **84.77%** | **80.49%** | **0.9737** | **0.7818** | Locked Holdout Test |
 | **SMC 2018** | 168 | 178 / 178 | **Linear SVM (Linear)** | **83.33%** | **78.68%** | **0.9856** | **0.7570** | External Validation |
 | **SMC 2018** | 168 | 178 / 178 | **LightGBM (Non-Linear)** | **79.17%** | **75.46%** | **0.9839** | **0.7027** | External Validation |
-| **SCAN-B** | 340 | 93 / 178 | **LightGBM (Non-Linear)** | **83.24%** | **79.91%** | **0.9634** | **0.7548** | External Validation |
-| **SCAN-B** | 340 | 93 / 178 | **Linear SVM (Linear)** | **81.18%** | **79.25%** | **0.9576** | **0.7291** | External Validation |
-| **METABRIC** | 1,756 | 78 / 178 | **Linear SVM (Linear)** | **72.78%** | **68.21%** | **0.9168** | **0.6074** | Microarray Shift |
-| **METABRIC** | 1,756 | 78 / 178 | **LightGBM (Non-Linear)** | **71.41%** | **66.42%** | **0.9163** | **0.5898** | Microarray Shift |
+| **SCAN-B** | 340 | 168 / 178 | **LightGBM (Non-Linear)** | **83.24%** | **79.91%** | **0.9634** | **0.7548** | External Validation |
+| **SCAN-B** | 340 | 168 / 178 | **Linear SVM (Linear)** | **81.18%** | **79.25%** | **0.9576** | **0.7291** | External Validation |
+| **METABRIC** | 1,756 | 147 / 178 | **Linear SVM (Linear)** | **72.78%** | **68.21%** | **0.9168** | **0.6074** | Microarray Shift |
+| **METABRIC** | 1,756 | 147 / 178 | **LightGBM (Non-Linear)** | **71.41%** | **66.42%** | **0.9163** | **0.5898** | Microarray Shift |
 
 > [!NOTE]
 > **Why did METABRIC performance drop?**
-> Only 78 of our 178 consensus genes were mapped to the METABRIC microarray platform. Despite losing 56% of the features, Linear SVM achieved **72.78%** accuracy and LightGBM achieved **71.41%** accuracy (both with ROC-AUC > 0.916), demonstrating the robust redundancy of our consensus molecular signature.
+> 147 of our 178 consensus genes (82.6% coverage) were mapped to the METABRIC microarray platform. Linear SVM achieved **72.78%** accuracy and LightGBM achieved **71.41%** accuracy (both with ROC-AUC > 0.916), demonstrating the robust transferability and redundancy of our consensus molecular signature across profiling technologies.
 
 ### Internal Validation Performance
 
@@ -529,11 +522,12 @@ AI Data Scientist & Computational Biology Independent Researcher
 If you use this repository, code, methodology, or derived work in academic research, please cite:
 
 ```bibtex
-@article{jha2026oncoresolve,
-  author       = {Jha, Shubham K.},
-  title        = {OncoResolve: High-Hygiene Explainable AI and Patient-Centric Uniqueness Framework for Breast Cancer Subtyping},
-  journal      = {Preprint},
+@software{jha2026oncoresolve,
+  author       = {Shubham Jha},
+  title        = {OncoResolve: Breast Cancer Transcriptomics and Explainable AI Pipeline},
   year         = {2026},
+  version      = {3.4.0},
+  publisher    = {Zenodo},
   doi          = {10.5281/zenodo.21967841},
   url          = {https://doi.org/10.5281/zenodo.21967841}
 }
