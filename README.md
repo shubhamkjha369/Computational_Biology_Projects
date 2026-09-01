@@ -8,6 +8,7 @@
 [![Scikit-Learn 1.4+](https://img.shields.io/badge/Scikit--Learn-1.4+-F7931E?style=flat&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![SHAP](https://img.shields.io/badge/SHAP-Explainability-blueviolet?style=flat)](#)
 
+[![Preprint](https://img.shields.io/badge/Preprint-PDF-red?logo=adobeacrobatreader&logoColor=white)](https://doi.org/10.5281/zenodo.21967841)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21967841.svg)](https://doi.org/10.5281/zenodo.21967841)
 [![Live App](https://img.shields.io/badge/Streamlit-Live_App-FF4B4B?logo=streamlit&logoColor=white)](https://oncoresolve.streamlit.app/)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/shubhamkjha369/OncoResolve-Breast-Cancer-Transcriptomics/blob/main/notebooks/OncoResolve_Subtyping_and_Precision_Profiling.ipynb)
@@ -46,6 +47,13 @@
 ## Abstract
 
 Breast cancer is a highly heterogeneous disease characterized by transcriptionally distinct molecular subtypes (PAM50 classification) that dictate therapeutic intervention and clinical prognosis. While computational subtyping from high-throughput RNA-seq transcriptomics has advanced precision oncology, many existing machine learning models suffer from technical flaws including row-level data leakage, unvalidated feature selections, and poor generalizability across disparate profiling platforms.
+
+> [!NOTE]
+> ### 📄 Full Manuscript & Preprint Reference
+> **Title**: OncoResolve: High-Hygiene Explainable AI and Patient-Centric Uniqueness Framework for Breast Cancer Subtyping  
+> **Author**: Shubham K. Jha (ORCID: [0009-0007-4519-5867](https://orcid.org/0009-0007-4519-5867))  
+> **Preprint DOI**: [10.5281/zenodo.21967841](https://doi.org/10.5281/zenodo.21967841)  
+> **Repository**: [shubhamkjha369/OncoResolve-Breast-Cancer-Transcriptomics](https://github.com/shubhamkjha369/OncoResolve-Breast-Cancer-Transcriptomics)
 
 ---
 
@@ -521,12 +529,11 @@ AI Data Scientist & Computational Biology Independent Researcher
 If you use this repository, code, methodology, or derived work in academic research, please cite:
 
 ```bibtex
-@software{jha2026oncoresolve,
-  author       = {Shubham Jha},
-  title        = {OncoResolve: Breast Cancer Transcriptomics and Explainable AI Pipeline},
+@article{jha2026oncoresolve,
+  author       = {Jha, Shubham K.},
+  title        = {OncoResolve: High-Hygiene Explainable AI and Patient-Centric Uniqueness Framework for Breast Cancer Subtyping},
+  journal      = {Preprint},
   year         = {2026},
-  version      = {3.4.0},
-  publisher    = {Zenodo},
   doi          = {10.5281/zenodo.21967841},
   url          = {https://doi.org/10.5281/zenodo.21967841}
 }
