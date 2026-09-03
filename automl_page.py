@@ -39,7 +39,7 @@ SUBTYPE_COLORS = {
 }
 
 PRETRAINED_LR_KEY = "linear_svm_model"
-PRETRAINED_SVM_KEY = "svm_model"
+PRETRAINED_LGBM_KEY = "lgbm_model"
 
 # Ground-truth mapping options for benchmarking
 SUBTYPE_MAPPINGS = {
@@ -221,13 +221,21 @@ div[data-testid="stFileUploader"] {
 
     # 1. LOAD ARTIFACTS
     try:
-        linear_svm_pipeline = joblib.load(ARTIFACT_DIR / "linear_svm_model.pkl")
-        svm_pipeline = joblib.load(ARTIFACT_DIR / "kernel_svm_model.pkl")
+        try:
+            linear_svm_pipeline = joblib.load(ARTIFACT_DIR / "linear_svm_model.pkl")
+        except Exception:
+            linear_svm_pipeline = joblib.load(ARTIFACT_DIR / "finalized_pam50_linear_svm_model.pkl")
+
+        try:
+            lgbm_pipeline = joblib.load(ARTIFACT_DIR / "lgbm_model.pkl")
+        except Exception:
+            lgbm_pipeline = joblib.load(ARTIFACT_DIR / "finalized_pam50_LGBM_model.pkl")
+
         top_deg_genes = joblib.load(ARTIFACT_DIR / "top_deg_genes.pkl")
         entrez_to_hugo = joblib.load(ARTIFACT_DIR / "tcga_entrez_to_hugo.pkl")
         label_encoder = joblib.load(ARTIFACT_DIR / "label_encoder_cohort.pkl")
     except Exception as exc:
-        st.error(f"Critical Error: Failed to load pre-trained OncoResolve v3.3 model artifacts: {exc}")
+        st.error(f"Critical Error: Failed to load pre-trained OncoResolve model artifacts: {exc}")
         return
 
     # Render Prediction Setup Form
@@ -238,8 +246,8 @@ div[data-testid="stFileUploader"] {
         with col_model:
             model_choice = st.selectbox(
                 "Select Pre-trained Model",
-                [PRETRAINED_LR_KEY, PRETRAINED_SVM_KEY],
-                format_func=lambda x: "Linear SVM (Linear Classifier — Holdout ACC: 86.29%)" if x == PRETRAINED_LR_KEY else "Kernel SVM (RBF Classifier — Holdout ACC: 87.31%)"
+                [PRETRAINED_LR_KEY, PRETRAINED_LGBM_KEY],
+                format_func=lambda x: "Linear SVM (Linear Classifier — Holdout ACC: 86.29%, F1: 82.17%)" if x == PRETRAINED_LR_KEY else "LightGBM (Non-Linear Classifier — Holdout ACC: 88.32%, F1: 85.27%)"
             )
         with col_scaling:
             scaling_choice = st.selectbox(
@@ -308,7 +316,7 @@ div[data-testid="stFileUploader"] {
                     return
 
                 # Choose model pipeline
-                pipeline = linear_svm_pipeline if model_choice == PRETRAINED_LR_KEY else svm_pipeline
+                pipeline = linear_svm_pipeline if model_choice == PRETRAINED_LR_KEY else lgbm_pipeline
                 scaler_fitted = pipeline.named_steps["scaler"]
                 clf = pipeline.named_steps["clf"]
 

@@ -22,10 +22,14 @@ class OncoClassifier:
             artifacts_dir = package_root / "data" / "artifacts"
             
             if model_path is None:
-                if self.model_type == "svm":
-                    model_path = artifacts_dir / "kernel_svm_model.pkl"
+                if self.model_type in ["lgbm", "lightgbm"]:
+                    model_path = artifacts_dir / "lgbm_model.pkl"
+                    if not os.path.exists(model_path):
+                        model_path = artifacts_dir / "finalized_pam50_LGBM_model.pkl"
                 else:
                     model_path = artifacts_dir / "linear_svm_model.pkl"
+                    if not os.path.exists(model_path):
+                        model_path = artifacts_dir / "finalized_pam50_linear_svm_model.pkl"
                     
             if label_encoder_path is None:
                 label_encoder_path = artifacts_dir / "label_encoder_cohort.pkl"
